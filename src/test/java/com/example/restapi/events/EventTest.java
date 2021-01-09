@@ -26,7 +26,7 @@ class EventTest {
         event.setName(name);
         event.setDescription(description);
 
-        //then
+        //
         assertThat(event.getName()).isEqualTo(name);
         assertThat(event.getDescription()).isEqualTo(description);
     }
