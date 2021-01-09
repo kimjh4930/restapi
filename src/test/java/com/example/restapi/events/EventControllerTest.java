@@ -2,6 +2,7 @@ package com.example.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -36,6 +37,7 @@ public class EventControllerTest {
     ObjectMapper objectMapper;
 
     @Test
+    @DisplayName("정상적으로 이벤트를 생성하는 테스트")
     public void createEvent() throws Exception {
         EventDto event = EventDto.builder()
                 .name("Spring")
@@ -67,6 +69,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @DisplayName("입력 받을 수 없는 값을 사용한 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request() throws Exception {
         Event event = Event.builder()
                 .id(100)
@@ -92,4 +95,38 @@ public class EventControllerTest {
                 .andExpect(status().isBadRequest())
         ;
     }
+
+    @Test
+    @DisplayName("입력 값이 비어있는 경우에 에러가 발생하는 테스")
+    void createEvent_Bad_Request_Empty_Input() throws Exception {
+        EventDto eventDto = EventDto.builder().build();
+
+        this.mockMvc.perform(post("/api/events/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("필트입력 값이 잘못된 경우에 에러가 발생하는 테스트")
+    void createEvent_Bad_Request_Wrong_input() throws Exception {
+        EventDto eventDto = EventDto.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2021, 1, 26, 14, 21))
+                .closeEnrollmentDateTime(LocalDateTime.of(2021, 1, 25, 14, 21))
+                .beginEventDateTime(LocalDateTime.of(2021, 1, 24, 14, 21))
+                .endEventDateTime(LocalDateTime.of(2021, 1, 23, 14, 21))
+                .basePrice(10000)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남 D2 스티트업 팩토리")
+                .build();
+
+        this.mockMvc.perform(post("/api/events/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
+    }
+
 }
