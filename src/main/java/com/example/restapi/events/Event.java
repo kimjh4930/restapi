@@ -1,6 +1,7 @@
 package com.example.restapi.events;
 
 import lombok.*;
+import org.apache.logging.log4j.util.Strings;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -29,4 +30,14 @@ public class Event {
 
     @Enumerated(value = EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+
+    public void update() {
+        this.free = (this.basePrice == 0 && this.maxPrice == 0) ? true : false;
+
+        if(this.location == null || this.location.isBlank()){
+            this.offline = false;
+        }else{
+            this.offline = true;
+        }
+    }
 }
