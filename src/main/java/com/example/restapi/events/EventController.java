@@ -1,7 +1,11 @@
 package com.example.restapi.events;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -11,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -45,9 +51,20 @@ public class EventController {
         event.update();
         Event newEvent = eventRepository.save(event);
 
-        URI createdUri = linkTo(EventController.class)
-                .slash("{id}")
-                .toUri();
-        return ResponseEntity.created(createdUri).body(newEvent);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
+        URI createdUri = selfLinkBuilder.toUri();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add("Content-Type", "application/hal+json; charset=UTF-8");
+
+        List<Link> links = List.of(
+                linkTo(EventController.class).withRel("query-events"),
+                selfLinkBuilder.withSelfRel(),
+                selfLinkBuilder.withRel("update-event"));
+
+        return ResponseEntity
+                .created(createdUri)
+                .headers(responseHeaders)
+                .body(EntityModel.of(newEvent, links));
     }
 }
