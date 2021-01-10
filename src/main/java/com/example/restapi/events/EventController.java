@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -60,7 +59,8 @@ public class EventController {
         List<Link> links = List.of(
                 linkTo(EventController.class).withRel("query-events"),
                 selfLinkBuilder.withSelfRel(),
-                selfLinkBuilder.withRel("update-event"));
+                selfLinkBuilder.withRel("update-event"),
+                Link.of("/docs/index.html#resources-events-create").withRel("profile"));
 
         return ResponseEntity
                 .created(createdUri)
