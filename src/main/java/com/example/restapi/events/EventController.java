@@ -1,5 +1,6 @@
 package com.example.restapi.events;
 
+import com.example.restapi.index.IndexController;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -18,6 +19,7 @@ import java.net.URI;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Controller
 @RequestMapping(value = "/api/events/", produces = MediaTypes.HAL_JSON_VALUE)
@@ -37,13 +39,18 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity createEvent (@Valid @RequestBody EventDto eventDto, Errors errors){
+        EntityModel errorModel = EntityModel.of(
+                errors,
+                linkTo(methodOn(IndexController.class).index()).withRel("index")
+        );
+
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(errorModel);
         }
 
         eventValidator.validate(eventDto, errors);
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(errorModel);
         }
 
         Event event = modelMapper.map(eventDto, Event.class);
